@@ -14,74 +14,130 @@ const POSTCARDS = [
   { file: 'Lower_Manhattan_skyline_-_June_2017.jpg', ar: '16 / 9', hand: 'Манхэттен с воды', place: 'Manhattan, NY', mark: 'MANHATTAN' },
 ];
 
-/* ---------- Split-flap digits ---------- */
+/* ---------- Waving flag inside the day count ---------- */
 
-function makeFlap() {
-  const el = document.createElement('div');
-  el.className = 'flap';
-  el.dataset.v = '0';
-  el.innerHTML = '<div class="half t"><span>0</span></div><div class="half b"><span>0</span></div>';
-  return el;
-}
+const daysCanvas = document.getElementById('days');
+const dctx = daysCanvas.getContext('2d');
+const flagCanvas = document.createElement('canvas');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NUMERAL_FONT = '"Big Shoulders Display", "Oswald", "Arial Narrow", sans-serif';
 
-function setFlap(el, v, animate) {
-  const old = el.dataset.v;
-  if (old === v) return;
-  el.dataset.v = v;
-  el.querySelectorAll('.leaf').forEach(n => n.remove());
-  const [top, bottom] = el.querySelectorAll('.half > span');
-  top.textContent = v;
-  if (!animate) {
-    bottom.textContent = v;
-    return;
+let label = '';
+let geo = null;
+
+function star(ctx, cx, cy, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const rad = i % 2 ? r * 0.382 : r;
+    const a = Math.PI / 5 * i - Math.PI / 2;
+    ctx.lineTo(cx + rad * Math.cos(a), cy + rad * Math.sin(a));
   }
-  bottom.textContent = old;
-  const leafTop = document.createElement('div');
-  leafTop.className = 'half t leaf';
-  leafTop.innerHTML = `<span>${old}</span>`;
-  const leafBottom = document.createElement('div');
-  leafBottom.className = 'half b leaf';
-  leafBottom.innerHTML = `<span>${v}</span>`;
-  leafBottom.addEventListener('animationend', () => {
-    bottom.textContent = v;
-    leafTop.remove();
-    leafBottom.remove();
-  });
-  el.append(leafTop, leafBottom);
+  ctx.closePath();
+  ctx.fill();
 }
 
-const groups = {};
-document.querySelectorAll('.group').forEach(g => {
-  const unit = g.dataset.unit;
-  const count = unit === 'd' ? 3 : 2;
-  const box = g.querySelector('.flaps');
-  groups[unit] = Array.from({ length: count }, () => box.appendChild(makeFlap()));
-});
-
-function showNumber(unit, n, animate) {
-  const flaps = groups[unit];
-  const str = String(n).padStart(flaps.length, '0');
-  flaps.forEach((f, i) => setFlap(f, str[i], animate));
+function paintFlag(w, h, pad) {
+  flagCanvas.width = w;
+  flagCanvas.height = h + pad * 2;
+  const f = flagCanvas.getContext('2d');
+  const stripe = h / 13;
+  f.fillStyle = '#f7f4ec';
+  f.fillRect(0, 0, w, h + pad * 2);
+  f.fillStyle = '#d0102f';
+  f.fillRect(0, 0, w, pad);
+  for (let i = 0; i < 13; i += 2) f.fillRect(0, pad + i * stripe, w, stripe);
+  f.fillRect(0, pad + h, w, pad);
+  const cw = w * 0.4;
+  const ch = stripe * 7;
+  f.fillStyle = '#0d2f7a';
+  f.fillRect(0, 0, cw, pad + ch);
+  f.fillStyle = '#f7f4ec';
+  const dx = cw / 12, dy = ch / 10;
+  for (let row = 0; row < 9; row++) {
+    const odd = row % 2 === 1;
+    for (let col = 0; col < (odd ? 5 : 6); col++) {
+      star(f, dx * (2 * col + (odd ? 2 : 1)), pad + dy * (row + 1), stripe * 0.32);
+    }
+  }
 }
 
-/* ---------- Destination letters ---------- */
+function layoutDays() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cssW = daysCanvas.clientWidth;
+  const maxCssH = Math.max(160, innerHeight * 0.56);
+  dctx.font = `900 100px ${NUMERAL_FONT}`;
+  const m = dctx.measureText(label);
+  const left = m.actualBoundingBoxLeft || 0;
+  const w100 = (m.actualBoundingBoxRight || m.width) + left;
+  const asc = m.actualBoundingBoxAscent || 72;
+  const desc = m.actualBoundingBoxDescent || 0;
+  let fs = 100 * cssW / w100;
+  if ((asc + desc) * fs / 100 > maxCssH) fs = 100 * maxCssH / (asc + desc);
+  const cssH = Math.ceil((asc + desc) * fs / 100) + 2;
+  daysCanvas.style.height = cssH + 'px';
+  daysCanvas.width = Math.round(cssW * dpr);
+  daysCanvas.height = Math.round(cssH * dpr);
+  const s = fs / 100 * dpr;
+  const textW = w100 * s;
+  const W = daysCanvas.width, H = daysCanvas.height;
+  geo = {
+    W, H, dpr,
+    font: `900 ${fs * dpr}px ${NUMERAL_FONT}`,
+    x: (W - textW) / 2 + left * s,
+    left: Math.floor((W - textW) / 2),
+    textW: Math.ceil(textW),
+    y: asc * s + dpr,
+    amp: H * 0.035,
+    strip: Math.max(2, Math.round(3 * dpr)),
+  };
+  paintFlag(geo.textW, H, Math.ceil(geo.amp * 1.4));
+}
 
-function scramble(el, text) {
-  const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  el.innerHTML = '';
-  [...text].forEach((c, i) => {
-    const span = document.createElement('span');
-    span.className = c === ' ' ? 'ch space' : 'ch';
-    el.appendChild(span);
-    if (c === ' ') return;
-    const steps = 6 + i * 2 + Math.floor(Math.random() * 4);
-    let k = 0;
-    const id = setInterval(() => {
-      k++;
-      span.textContent = k >= steps ? c : pool[Math.floor(Math.random() * pool.length)];
-      if (k >= steps) clearInterval(id);
-    }, 55);
-  });
+function drawDays(t) {
+  if (!geo) return;
+  const { W, H, amp, strip, left, textW } = geo;
+  const pad = (flagCanvas.height - H) / 2;
+  dctx.globalCompositeOperation = 'source-over';
+  dctx.clearRect(0, 0, W, H);
+  for (let x = 0; x < textW; x += strip) {
+    const u = x / textW;
+    const phase = u * Math.PI * 2.4 - t * 0.0021;
+    const grow = 0.35 + 0.65 * u;
+    const dy = Math.sin(phase) * amp * grow;
+    dctx.drawImage(flagCanvas, x, 0, strip, flagCanvas.height, left + x, dy - pad, strip, flagCanvas.height);
+    const shade = Math.cos(phase) * grow;
+    dctx.fillStyle = shade > 0 ? `rgba(255,255,255,${shade * 0.12})` : `rgba(0,0,30,${-shade * 0.26})`;
+    dctx.fillRect(left + x, 0, strip, H);
+  }
+  dctx.globalCompositeOperation = 'destination-in';
+  dctx.fillStyle = '#000';
+  dctx.font = geo.font;
+  dctx.textBaseline = 'alphabetic';
+  dctx.fillText(label, geo.x, geo.y);
+  dctx.globalCompositeOperation = 'source-over';
+}
+
+let heroVisible = true;
+new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(daysCanvas);
+
+function loop(t) {
+  if (heroVisible) drawDays(t);
+  requestAnimationFrame(loop);
+}
+
+function setLabel(text) {
+  if (text === label) return;
+  label = text;
+  daysCanvas.setAttribute('aria-label', text);
+  layoutDays();
+  if (reduceMotion) drawDays(0);
+}
+
+function plural(n, one, few, many) {
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return one;
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return few;
+  return many;
 }
 
 /* ---------- Postcards ---------- */
@@ -130,13 +186,11 @@ function drawBarcode() {
 
 /* ---------- Tick ---------- */
 
+const pad2 = n => String(n).padStart(2, '0');
 let landed = false;
 
-function tick(animate = true) {
+function tick() {
   const now = new Date();
-  document.getElementById('clock').textContent =
-    `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
   const pct = Math.min(100, Math.max(0, (now - START) / (TARGET - START) * 100));
   document.getElementById('trackDone').style.width = pct + '%';
   document.getElementById('jet').style.left = pct + '%';
@@ -145,26 +199,39 @@ function tick(animate = true) {
   const diff = Math.max(0, TARGET - now);
   const sec = Math.floor(diff / 1000);
   const days = Math.floor(sec / 86400);
-  showNumber('d', days, animate);
-  showNumber('h', Math.floor(sec % 86400 / 3600), animate);
-  showNumber('m', Math.floor(sec % 3600 / 60), animate);
-  showNumber('s', sec % 60, animate);
+  document.getElementById('h').textContent = pad2(Math.floor(sec % 86400 / 3600));
+  document.getElementById('m').textContent = pad2(Math.floor(sec % 3600 / 60));
+  document.getElementById('s').textContent = pad2(sec % 60);
   document.getElementById('stubDays').textContent = String(days).padStart(3, '0');
 
-  const status = document.getElementById('status');
-  if (diff === 0 && !landed) {
-    landed = true;
-    status.textContent = 'Landed';
-    document.getElementById('headline').innerHTML = 'Welcome to<br>America.';
-    document.getElementById('gate').textContent = 'USA';
-  } else if (!landed) {
-    status.textContent = days <= 1 ? 'Boarding' : days <= 30 ? 'Check-in' : 'On time';
-    document.getElementById('gate').textContent = days <= 30 ? 'J1' : 'TBA';
+  if (diff === 0) {
+    if (!landed) {
+      landed = true;
+      setLabel('USA');
+      document.getElementById('caption').textContent = 'Добро пожаловать в Америку';
+      document.querySelector('.clock').hidden = true;
+      document.getElementById('gate').textContent = 'USA';
+    }
+    return;
   }
+  setLabel(String(days));
+  document.getElementById('daysWord').textContent = plural(days, 'день', 'дня', 'дней');
+  document.getElementById('gate').textContent = days <= 30 ? 'J1' : 'TBA';
 }
 
 renderPostcards();
 drawBarcode();
-tick(false);
-scramble(document.getElementById('dest'), 'UNITED STATES');
+tick();
 setInterval(tick, 1000);
+
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { layoutDays(); if (reduceMotion) drawDays(0); }, 120);
+});
+
+document.fonts.load(`900 100px ${NUMERAL_FONT}`).finally(() => {
+  layoutDays();
+  if (reduceMotion) drawDays(0);
+  else requestAnimationFrame(loop);
+});

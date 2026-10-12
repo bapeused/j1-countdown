@@ -1,12 +1,10 @@
-/* Airport night → postcard daylight → boarding pass. Board is the one loud object; the rest is paper and ink. */
+/* Night poster → postcard daylight → boarding pass. The flag-filled day count is the one loud object; the rest is paper and ink. */
 :root {
   --ink: #0b1630;
   --ink-2: #13203f;
-  --board: #121418;
-  --flap: #23262c;
-  --flap-hi: #2c3038;
-  --flap-text: #f2efe6;
+  --cream: #f2efe6;
   --amber: #ffb400;
+  --red-lit: #ef3b55;
   --red: #bf0a30;
   --blue: #002868;
   --paper: #fbfaf6;
@@ -15,8 +13,9 @@
   --muted: #6b7890;
 
   --f-display: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+  --f-numeral: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', sans-serif;
   --f-script: 'Yellowtail', 'Brush Script MT', cursive;
-  --f-board: 'Oswald', 'Arial Narrow', sans-serif;
+  --f-label: 'Oswald', 'Arial Narrow', sans-serif;
   --f-body: 'Fira Sans', system-ui, sans-serif;
   --f-hand: 'Caveat', 'Segoe Print', cursive;
 
@@ -29,7 +28,7 @@
 html, body { margin: 0; }
 body {
   background: var(--ink);
-  color: var(--flap-text);
+  color: var(--cream);
   font-family: var(--f-body);
   font-size: 16px;
   line-height: 1.5;
@@ -37,6 +36,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
 h1, h2, p, dl, dd { margin: 0; }
 
 .wrap {
@@ -50,241 +50,152 @@ h1, h2, p, dl, dd { margin: 0; }
 .hero {
   position: relative;
   isolation: isolate;
-  padding-block: clamp(40px, 8vw, 96px) clamp(48px, 7vw, 88px);
   padding-inline: var(--gutter);
+  padding-block: clamp(18px, 3vw, 28px) clamp(48px, 7vw, 88px);
+  background:
+    radial-gradient(120% 70% at 50% 0%, var(--ink-2) 0%, var(--ink) 70%),
+    var(--ink);
   overflow: hidden;
 }
-
-.hero-photo {
+.hero::before {
+  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(11, 22, 48, .96) 0%, rgba(11, 22, 48, .82) 38%, rgba(11, 22, 48, .25) 72%, rgba(11, 22, 48, .1) 100%),
-    linear-gradient(0deg, var(--ink) 0%, rgba(11, 22, 48, 0) 40%),
-    url('https://commons.wikimedia.org/wiki/Special:FilePath/Close_up_of_American_Flag_Waving.jpg?width=2000') right 30% / cover no-repeat;
-  animation: drift 24s ease-in-out infinite alternate;
-}
-@keyframes drift {
-  from { transform: scale(1.04) translateX(0); }
-  to { transform: scale(1.1) translateX(-1.5%); }
+  background: radial-gradient(60% 45% at 50% 45%, rgba(191, 10, 48, .16), transparent 70%);
+  pointer-events: none;
 }
 
-.hero-inner {
+.topbar {
   max-width: var(--max);
   margin-inline: auto;
-  display: grid;
-  gap: clamp(20px, 3vw, 32px);
-}
-
-.kicker {
-  font-family: var(--f-board);
-  text-transform: uppercase;
-  letter-spacing: .22em;
-  font-size: .85rem;
-  color: var(--amber);
-}
-.kicker span { color: var(--flap-text); opacity: .5; margin-inline: .4em; }
-
-h1 {
-  font-family: var(--f-display);
-  font-weight: 400;
-  font-size: clamp(3rem, 9vw, 7.5rem);
-  line-height: .95;
-  letter-spacing: -.01em;
-  text-wrap: balance;
-  color: var(--paper);
-  text-shadow: 0 .04em 0 var(--red), 0 .08em 0 var(--blue), 0 .2em .4em rgba(0, 0, 0, .35);
-}
-
-/* ---------- Departure board ---------- */
-
-.board {
-  background: var(--board);
-  border-radius: 10px;
-  padding: clamp(14px, 2.4vw, 26px);
-  max-width: 860px;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, .06),
-    0 30px 60px -20px rgba(0, 0, 0, .6),
-    inset 0 1px 0 rgba(255, 255, 255, .05);
-  display: grid;
-  gap: clamp(16px, 2.4vw, 24px);
-}
-
-.board-head {
   display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, .08);
-  font-family: var(--f-board);
-  text-transform: uppercase;
-}
-.board-title { font-size: 1.35rem; font-weight: 600; letter-spacing: .08em; color: var(--amber); }
-.board-sub { font-size: .9rem; letter-spacing: .12em; opacity: .55; }
-.board-clock {
-  margin-left: auto;
-  font-size: 1.1rem;
-  letter-spacing: .08em;
-  font-variant-numeric: tabular-nums;
-  color: var(--amber);
-}
-
-.board-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 12px clamp(16px, 3vw, 32px);
-  align-items: end;
-}
-.cell { display: grid; gap: 6px; min-width: 0; }
-.cap {
-  font-family: var(--f-board);
-  font-size: .7rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.val {
-  font-family: var(--f-board);
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.status { color: var(--amber); animation: blink 2.4s steps(1) infinite; }
-@keyframes blink { 50% { opacity: .35; } }
-
-.chars { display: flex; flex-wrap: wrap; gap: 2px; }
-.ch {
-  display: inline-grid;
-  place-items: center;
-  width: 1.15em;
-  height: 1.55em;
-  background: var(--flap);
-  border-radius: 3px;
-  font-family: var(--f-board);
-  font-weight: 500;
-  font-size: 1.05rem;
-  position: relative;
-}
-.ch::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; top: 50%;
-  height: 1px;
-  background: rgba(0, 0, 0, .55);
-}
-.ch.space { background: transparent; }
-.ch.space::after { display: none; }
-
-.timer {
-  --fw: clamp(36px, 6.2vw, 68px);
-  --fh: calc(var(--fw) * 1.42);
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(12px, 2.4vw, 28px);
-}
-.group { display: grid; gap: 8px; justify-items: start; }
-.flaps { display: flex; gap: 4px; }
-.unit {
-  font-family: var(--f-board);
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(242, 239, 230, .14);
+  font-family: var(--f-label);
   font-size: .78rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 230, .62);
+}
+.topbar-mid { color: var(--amber); }
+
+.poster {
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-top: clamp(28px, 5vw, 56px);
+  display: grid;
+  gap: clamp(18px, 3vw, 30px);
+}
+
+.days {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, .45));
+}
+
+.under {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+}
+
+.caption {
+  font-family: var(--f-label);
+  font-weight: 600;
+  font-size: clamp(2rem, 5.4vw, 4.4rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: .01em;
+  color: var(--paper);
+  text-wrap: balance;
+}
+
+.clock {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(6px, 1.2vw, 14px);
+  font-family: var(--f-numeral);
+  font-variant-numeric: tabular-nums;
+}
+.clock div { display: grid; justify-items: center; gap: 4px; }
+.clock b {
+  font-weight: 800;
+  font-size: clamp(2.6rem, 6.2vw, 5rem);
+  line-height: .9;
+  color: var(--paper);
+  min-width: 1.05em;
+  text-align: center;
+}
+.clock i {
+  font-style: normal;
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+  color: rgba(242, 239, 230, .3);
+}
+.clock span {
+  font-family: var(--f-label);
+  font-size: .7rem;
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--muted);
 }
-
-.flap {
-  position: relative;
-  width: var(--fw);
-  height: var(--fh);
-  perspective: 300px;
-  font-family: var(--f-board);
-  font-weight: 500;
-  font-size: calc(var(--fh) * .78);
-  color: var(--flap-text);
-  font-variant-numeric: tabular-nums;
-}
-.half {
-  position: absolute;
-  left: 0; right: 0;
-  height: 50%;
-  overflow: hidden;
-  background: var(--flap);
-  backface-visibility: hidden;
-}
-.half > span {
-  position: absolute;
-  left: 0; right: 0;
-  height: var(--fh);
-  line-height: var(--fh);
-  text-align: center;
-}
-.half.t { top: 0; border-radius: 5px 5px 0 0; background: linear-gradient(var(--flap-hi), var(--flap)); }
-.half.t > span { top: 0; }
-.half.b { bottom: 0; border-radius: 0 0 5px 5px; }
-.half.b > span { bottom: 0; }
-.flap::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; top: calc(50% - 1px);
-  height: 2px;
-  background: var(--board);
-  z-index: 3;
-}
-.leaf { z-index: 2; }
-.leaf.t { transform-origin: 50% 100%; animation: flip-top .22s ease-in forwards; }
-.leaf.b { transform-origin: 50% 0; transform: rotateX(90deg); animation: flip-bottom .22s .22s ease-out forwards; }
-@keyframes flip-top { to { transform: rotateX(-90deg); } }
-@keyframes flip-bottom { to { transform: rotateX(0); } }
+.clock .sec b { color: var(--red-lit); }
 
 .route {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, .08);
-}
-.iata {
-  font-family: var(--f-board);
-  font-weight: 600;
-  letter-spacing: .12em;
-  font-size: .9rem;
+  gap: 16px;
+  padding-block: clamp(10px, 2vw, 18px) 28px;
+  font-family: var(--f-label);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .track {
   position: relative;
   height: 2px;
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .25) 0 6px, transparent 6px 12px);
+  background: repeating-linear-gradient(90deg, rgba(242, 239, 230, .28) 0 6px, transparent 6px 12px);
 }
 .track-done {
   position: absolute;
   inset: 0 auto 0 0;
   width: 0;
-  background: var(--amber);
+  background: linear-gradient(90deg, var(--red), var(--paper));
   transition: width 1s ease;
 }
 .jet {
   position: absolute;
   top: 50%;
   left: 0;
-  width: 22px;
-  height: 22px;
-  fill: var(--amber);
-  transform: translate(-50%, -50%) rotate(90deg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-11px, -50%);
   transition: left 1s ease;
+  color: var(--paper);
 }
-.pct {
-  font-family: var(--f-board);
-  font-size: .78rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
+.jet svg { width: 22px; height: 22px; fill: var(--paper); transform: rotate(90deg); }
+.jet span {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 6px);
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--red);
+  color: var(--paper);
+  letter-spacing: .08em;
   white-space: nowrap;
 }
-.pct b { color: var(--amber); font-weight: 500; }
 
 /* ---------- Postcards ---------- */
 
@@ -375,7 +286,7 @@ h1 {
   color: var(--blue);
 }
 .card .place {
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   font-size: .72rem;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -404,7 +315,7 @@ h1 {
   gap: 1px;
   background: var(--blue);
   color: var(--paper);
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   text-align: center;
 }
 .stamp-inner .st { font-size: 15px; line-height: 1; color: var(--paper); }
@@ -477,7 +388,7 @@ h1 {
 }
 .airline { font-family: var(--f-display); font-size: 1.4rem; color: var(--blue); }
 .pass-type {
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   font-size: .75rem;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -508,24 +419,24 @@ h1 {
   gap: 16px 20px;
 }
 .pass-fields dt {
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   font-size: .68rem;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .pass-fields dd {
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   font-weight: 500;
   font-size: 1.15rem;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
 
-.stub-days { font-family: var(--f-board); font-size: 1.1rem; text-transform: uppercase; }
+.stub-days { font-family: var(--f-label); font-size: 1.1rem; text-transform: uppercase; }
 .stub-days b { font-family: var(--f-display); font-weight: 400; font-size: 3.4rem; line-height: 1; color: var(--red); display: block; }
 .barcode { width: 100%; height: 64px; }
-.stub-code { font-family: var(--f-board); font-size: .75rem; letter-spacing: .3em; color: var(--muted); }
+.stub-code { font-family: var(--f-label); font-size: .75rem; letter-spacing: .3em; color: var(--muted); }
 
 /* ---------- Footer ---------- */
 
@@ -539,7 +450,7 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   padding-block: 22px 28px;
-  font-family: var(--f-board);
+  font-family: var(--f-label);
   font-size: .78rem;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -551,22 +462,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline
 /* ---------- Responsive ---------- */
 
 @media (max-width: 720px) {
-  .hero-photo {
-    background:
-      linear-gradient(180deg, rgba(11, 22, 48, .55) 0%, rgba(11, 22, 48, .75) 30%, rgba(11, 22, 48, .92) 60%, var(--ink) 100%),
-      url('https://commons.wikimedia.org/wiki/Special:FilePath/Close_up_of_American_Flag_Waving.jpg?width=1200') 38% 0 / auto 62% no-repeat,
-      var(--ink);
-  }
-  .board-row { grid-template-columns: 1fr 1fr; }
-  .cell.dest { grid-column: 1 / -1; order: -1; }
-  .timer {
-    --fw: 11.4vw;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    row-gap: 18px;
-  }
-  .route { grid-template-columns: auto 1fr auto; }
-  .pct { grid-column: 1 / -1; }
+  .topbar-mid { display: none; }
+  .route-end:first-child { display: none; }
+  .route { grid-template-columns: 1fr auto; }
 
   .pass { grid-template-columns: 1fr; }
   .pass-main {
@@ -585,13 +483,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline
 }
 
 @media (max-width: 420px) {
-  .board-head .board-sub { display: none; }
   .stamp { width: 48px; height: 58px; top: 18px; right: 18px; }
   .postmark { width: 64px; height: 64px; right: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-photo, .status { animation: none; }
-  .leaf { animation-duration: 0s !important; animation-delay: 0s !important; }
   .card, .card:hover { transition: none; }
 }
