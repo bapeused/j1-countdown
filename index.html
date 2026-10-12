@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Next Stop America</title>
+  <meta name="description" content="Обратный отсчёт до вылета в США по программе J-1 Work and Travel, 1 июня 2027">
+  <meta property="og:title" content="Next stop: America">
+  <meta property="og:description" content="J-1 Work & Travel · вылет 1 июня 2027">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23002868'/><path d='M16 6l2.6 6.6 7 .4-5.4 4.5 1.8 6.9L16 20.5 10 24.4l1.8-6.9-5.4-4.5 7-.4z' fill='%23fff'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@500;700&family=Fira+Sans:wght@400;500;600&family=Oswald:wght@400;500;600&family=Yellowtail&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-photo" role="img" aria-label="Американский флаг на ветру"></div>
+
+    <div class="hero-inner">
+      <p class="kicker">J-1 Work &amp; Travel <span>·</span> Summer 2027</p>
+      <h1 id="headline">Next stop:<br>America.</h1>
+
+      <section class="board" aria-label="Табло вылета">
+        <div class="board-head">
+          <span class="board-title">Departures</span>
+          <span class="board-sub">Вылеты</span>
+          <span class="board-clock" id="clock">--:--</span>
+        </div>
+
+        <div class="board-row">
+          <div class="cell">
+            <span class="cap">Рейс</span>
+            <span class="val">J1 2027</span>
+          </div>
+          <div class="cell dest">
+            <span class="cap">Направление</span>
+            <span class="chars" id="dest" aria-label="United States"></span>
+          </div>
+          <div class="cell">
+            <span class="cap">Дата</span>
+            <span class="val">01 JUN 2027</span>
+          </div>
+          <div class="cell">
+            <span class="cap">Статус</span>
+            <span class="val status" id="status">On time</span>
+          </div>
+        </div>
+
+        <div class="timer" id="timer" aria-live="off">
+          <div class="group" data-unit="d"><div class="flaps"></div><span class="unit">дней</span></div>
+          <div class="group" data-unit="h"><div class="flaps"></div><span class="unit">часов</span></div>
+          <div class="group" data-unit="m"><div class="flaps"></div><span class="unit">минут</span></div>
+          <div class="group" data-unit="s"><div class="flaps"></div><span class="unit">секунд</span></div>
+        </div>
+
+        <div class="route">
+          <span class="iata">HOME</span>
+          <div class="track">
+            <div class="track-done" id="trackDone"></div>
+            <svg class="jet" id="jet" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+          </div>
+          <span class="iata">USA</span>
+          <span class="pct"><b id="pct">0%</b> пути позади</span>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <main>
+    <section class="greetings">
+      <div class="wrap">
+        <h2 class="large-letter">
+          <span class="script">Greetings from</span>
+          <span class="big">America</span>
+        </h2>
+        <p class="lede">Список мест, куда хотим доехать за лето. Открытки отправим себе сами.</p>
+
+        <div class="postcards" id="postcards"></div>
+      </div>
+    </section>
+
+    <section class="pass-section">
+      <div class="wrap">
+        <article class="pass" aria-label="Посадочный талон">
+          <div class="pass-main">
+            <div class="pass-top">
+              <span class="airline">J-1 Airways</span>
+              <span class="pass-type">Boarding pass · Посадочный талон</span>
+            </div>
+            <div class="pass-route">
+              <div>
+                <span class="cap">From</span>
+                <span class="code">HOME</span>
+                <span class="city">Дом, милый дом</span>
+              </div>
+              <svg class="pass-jet" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+              <div class="to">
+                <span class="cap">To</span>
+                <span class="code">USA</span>
+                <span class="city">United States of America</span>
+              </div>
+            </div>
+            <dl class="pass-fields">
+              <div><dt>Passenger</dt><dd>Exchange Visitor</dd></div>
+              <div><dt>Visa</dt><dd>J-1 · DS-2019</dd></div>
+              <div><dt>Date</dt><dd>01 JUN 2027</dd></div>
+              <div><dt>Seat</dt><dd>27A</dd></div>
+              <div><dt>Season</dt><dd>Summer</dd></div>
+              <div><dt>Gate</dt><dd id="gate">—</dd></div>
+            </dl>
+          </div>
+          <div class="pass-stub">
+            <span class="cap">Boarding in</span>
+            <span class="stub-days"><b id="stubDays">000</b> дн.</span>
+            <canvas class="barcode" id="barcode" width="220" height="64" aria-hidden="true"></canvas>
+            <span class="stub-code">J1-2027-USA</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="airmail" aria-hidden="true"></div>
+    <div class="wrap foot">
+      <span>Par Avion · Via Air Mail</span>
+      <span>Фото: Wikimedia Commons</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
