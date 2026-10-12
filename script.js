@@ -184,6 +184,83 @@ function drawBarcode() {
   }
 }
 
+/* ---------- Ledger ---------- */
+
+const DAY = 86400000;
+const LEDGER = [
+  { id: 'years', div: 365.2425 * DAY, dec: 4, forms: ['год', 'года', 'лет'], frac: 'года' },
+  { id: 'months', div: 30.436875 * DAY, dec: 3, forms: ['месяц', 'месяца', 'месяцев'], frac: 'месяца' },
+  { id: 'weeks', div: 7 * DAY, dec: 3, forms: ['неделя', 'недели', 'недель'], frac: 'недели' },
+  { id: 'days', div: DAY, dec: 4, forms: ['день', 'дня', 'дней'], frac: 'дня' },
+  { id: 'hours', div: 3600000, dec: 0, forms: ['час', 'часа', 'часов'] },
+  { id: 'minutes', div: 60000, dec: 0, forms: ['минута', 'минуты', 'минут'] },
+  { id: 'seconds', div: 1000, dec: 0, forms: ['секунда', 'секунды', 'секунд'] },
+  { id: 'ms', div: 1, dec: 0, forms: ['миллисекунда', 'миллисекунды', 'миллисекунд'], hot: true },
+  { id: 'beats', div: 60000 / 72, dec: 0, forms: ['удар сердца', 'удара сердца', 'ударов сердца'], note: 'если пульс 72 в минуту' },
+  { id: 'weekends', count: weekendsLeft, forms: ['суббота дома', 'субботы дома', 'суббот дома'], note: 'последние выходные перед летом' },
+];
+
+function weekendsLeft(now) {
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  let n = 0;
+  while (d < TARGET) {
+    if (d.getDay() === 6) n++;
+    d.setDate(d.getDate() + 1);
+  }
+  return n;
+}
+
+const formats = {};
+const fmt = dec => formats[dec] || (formats[dec] = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: dec, maximumFractionDigits: dec }));
+
+const ledgerRows = LEDGER.map(row => {
+  const li = document.createElement('li');
+  if (row.hot) li.className = 'hot';
+  li.innerHTML = `<span class="n">0</span><span class="u"><span class="w"></span>${row.note ? `<small>${row.note}</small>` : ''}</span>`;
+  document.getElementById('ledger').appendChild(li);
+  return { row, n: li.querySelector('.n'), w: li.querySelector('.w'), last: '' };
+});
+
+let ledgerVisible = true;
+let weekendCache = { at: 0, value: 0 };
+new IntersectionObserver(([e]) => { ledgerVisible = e.isIntersecting; }).observe(document.getElementById('ledger'));
+
+function updateLedger(force) {
+  if (!ledgerVisible && !force) return;
+  const now = new Date();
+  const diff = Math.max(0, TARGET - now);
+  for (const r of ledgerRows) {
+    let value, text, word;
+    if (r.row.count) {
+      if (now - weekendCache.at > 60000) weekendCache = { at: +now, value: r.row.count(now) };
+      value = weekendCache.value;
+      text = fmt(0).format(value);
+      word = plural(value, ...r.row.forms);
+    } else {
+      value = diff / r.row.div;
+      if (r.row.dec) {
+        text = fmt(r.row.dec).format(value);
+        word = r.row.frac;
+      } else {
+        value = Math.floor(value);
+        text = fmt(0).format(value);
+        word = plural(value, ...r.row.forms);
+      }
+    }
+    if (text !== r.last) {
+      r.n.textContent = text;
+      r.w.textContent = word;
+      r.last = text;
+    }
+  }
+}
+
+function ledgerLoop() {
+  updateLedger(false);
+  if (reduceMotion) setTimeout(ledgerLoop, 1000);
+  else requestAnimationFrame(ledgerLoop);
+}
+
 /* ---------- Tick ---------- */
 
 const pad2 = n => String(n).padStart(2, '0');
@@ -221,6 +298,8 @@ function tick() {
 
 renderPostcards();
 drawBarcode();
+updateLedger(true);
+ledgerLoop();
 tick();
 setInterval(tick, 1000);
 

@@ -197,6 +197,87 @@ h1, h2, p, dl, dd { margin: 0; }
   white-space: nowrap;
 }
 
+/* ---------- Ledger: the same wait in other units ---------- */
+
+.ledger {
+  background: var(--ink);
+  padding-block: clamp(24px, 4vw, 48px) clamp(64px, 9vw, 112px);
+}
+.ledger-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+.ledger-head {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 32px);
+  display: grid;
+  gap: 12px;
+  padding-top: 18px;
+}
+.eyebrow {
+  font-family: var(--f-label);
+  font-size: .78rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.ledger-head h2 {
+  font-family: var(--f-label);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  line-height: 1;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--paper);
+}
+.ledger-note {
+  max-width: 32ch;
+  color: rgba(242, 239, 230, .62);
+}
+
+.ledger-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(242, 239, 230, .14);
+}
+.ledger-list li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding-block: clamp(10px, 1.6vw, 16px);
+  border-bottom: 1px solid rgba(242, 239, 230, .14);
+}
+.ledger-list .n {
+  font-family: var(--f-numeral);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ledger-list .u {
+  font-family: var(--f-label);
+  font-size: clamp(.95rem, 1.6vw, 1.15rem);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 230, .7);
+}
+.ledger-list .u small {
+  display: block;
+  font-family: var(--f-body);
+  font-size: .78rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+}
+.ledger-list li.hot .n { color: var(--red-lit); }
+
 /* ---------- Postcards ---------- */
 
 .greetings {
@@ -462,6 +543,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline
 /* ---------- Responsive ---------- */
 
 @media (max-width: 720px) {
+  .ledger-grid { grid-template-columns: 1fr; }
+  .ledger-head { position: static; padding-top: 0; }
   .topbar-mid { display: none; }
   .route-end:first-child { display: none; }
   .route { grid-template-columns: 1fr auto; }
